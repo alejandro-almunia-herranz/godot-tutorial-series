@@ -12,9 +12,13 @@ const FRICTION = 500
 
 var velocity = Vector2.ZERO
 
+# Al usar onready var nos quitamos el método _ready()
+onready var animationPlayer = $AnimationPlayer
+
 # Esta función se llama cuando el nodo y sus hijos están listos para ser usados
-func _ready():
-	print("Hola, mundo!!")
+""" func _ready():
+	# Lo tenemos que meter aquí porque no está inicializado en el contructor
+	animationPlayer = $AnimationPlayer """
 
 # Esta función se llama n veces por segundo (frames por segundo)
 # Este es el código que luego borra, lo dejo para referencia
@@ -56,10 +60,16 @@ func _physics_process(delta):
 	
 	# Si tenemos algo en el vector de entrada
 	# Es decir, si han pulsado las teclas de movimiento
-	if input_vector != Vector2.ZERO:		
+	if input_vector != Vector2.ZERO:
+		if input_vector.x > 0:
+			animationPlayer.play("RunRight")
+		else:
+			animationPlayer.play("RunLeft")
+			
 		velocity = velocity.move_toward(input_vector * MAX_SPEED, ACCELERATION * delta)
 	else:
 		# Si no hay nada pulsado, deceleramos
+		animationPlayer.play("IdleRight")
 		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
 	
 	# Ahora usamos move_and_slide
