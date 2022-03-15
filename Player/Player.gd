@@ -1,5 +1,15 @@
 extends KinematicBody2D
 
+# Esta constante la usamos para multiplicar por el movimiento
+# Prueba a quitarla de la multiplicación de la función
+# move_and_collide() y verás que se mueve demasiado lentamente
+const MAX_SPEED = 200
+
+# Esta constante nos permite acelerar el movimiento del personaje
+const ACCELERATION = 50
+
+const FRICTION = 25
+
 var velocity = Vector2.ZERO
 
 # Esta función se llama cuando el nodo y sus hijos están listos para ser usados
@@ -40,7 +50,24 @@ func _physics_process(delta):
 	# Como ventaja, permite el movimiento diagonal sin problemas
 	input_vector.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
 	input_vector.y = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
-	move_and_collide(input_vector)
+	# Tenemos que normalizar el vector
+	# VED EL QUAKE ORIGINAL Y EL PROBLEMA QUE TENÍA CON ESTO.... LOOOOOL
+	input_vector = input_vector.normalized()
+	
+	# Si tenemos algo en el vector de entrada
+	# Es decir, si han pulsado las teclas de movimiento
+	if input_vector != Vector2.ZERO:
+		# Calculamos la velocidad
+		# Al SUMARLA, ACELERAMOS
+		velocity += input_vector * ACCELERATION * delta
+		# Limitamos el máximo de velocidad		
+		velocity = velocity.clamped(MAX_SPEED * delta)
+	else:
+		# Si no hay nada pulsado, deceleramos
+		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
+	
+	# Aplicamos el movimiento y la colisión
+	move_and_collide(velocity)
 
 # Esta función se llama en cada frame. El argumento delta indica
 # el número de segundos que han pasado desde el último frame.
