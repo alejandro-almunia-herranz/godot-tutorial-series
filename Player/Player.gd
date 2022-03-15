@@ -3,12 +3,12 @@ extends KinematicBody2D
 # Esta constante la usamos para multiplicar por el movimiento
 # Prueba a quitarla de la multiplicación de la función
 # move_and_collide() y verás que se mueve demasiado lentamente
-const MAX_SPEED = 200
+const MAX_SPEED = 100
 
 # Esta constante nos permite acelerar el movimiento del personaje
-const ACCELERATION = 50
+const ACCELERATION = 500
 
-const FRICTION = 25
+const FRICTION = 500
 
 var velocity = Vector2.ZERO
 
@@ -56,18 +56,15 @@ func _physics_process(delta):
 	
 	# Si tenemos algo en el vector de entrada
 	# Es decir, si han pulsado las teclas de movimiento
-	if input_vector != Vector2.ZERO:
-		# Calculamos la velocidad
-		# Al SUMARLA, ACELERAMOS
-		velocity += input_vector * ACCELERATION * delta
-		# Limitamos el máximo de velocidad		
-		velocity = velocity.clamped(MAX_SPEED * delta)
+	if input_vector != Vector2.ZERO:		
+		velocity = velocity.move_toward(input_vector * MAX_SPEED, ACCELERATION * delta)
 	else:
 		# Si no hay nada pulsado, deceleramos
 		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
 	
-	# Aplicamos el movimiento y la colisión
-	move_and_collide(velocity)
+	# Ahora usamos move_and_slide
+	# IMPORTANTE: NO USAMOS DELTA, ESTA FUNCIÓN YA LO HACE SOLO
+	velocity = move_and_slide(velocity)
 
 # Esta función se llama en cada frame. El argumento delta indica
 # el número de segundos que han pasado desde el último frame.
